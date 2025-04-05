@@ -1,7 +1,7 @@
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('database', () => {
-  // Ưu tiên sử dụng DATABASE_URL nếu được cung cấp
+
   if (process.env.DATABASE_URL) {
     return {
       type: 'postgres',
