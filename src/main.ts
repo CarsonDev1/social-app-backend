@@ -17,6 +17,7 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
+
   const configService = app.get(ConfigService);
   const port = configService.get('PORT') || 3000;
 

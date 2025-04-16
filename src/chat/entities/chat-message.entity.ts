@@ -1,7 +1,12 @@
-import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Column, Entity, ManyToOne, JoinColumn,
+  CreateDateColumn, UpdateDateColumn
+} from 'typeorm';
 import { BaseEntity } from '../../common/entities/base.entity';
 import { User } from '../../users/entities/user.entity';
 import { ChatRoom } from './chat-room.entity';
+import { Exclude, Transform } from 'class-transformer';
+import { formatToVietnamTime } from '../../common/utils/date-utils';
 
 @Entity('chat_messages')
 export class ChatMessage extends BaseEntity {
@@ -24,4 +29,20 @@ export class ChatMessage extends BaseEntity {
 
   @Column({ default: false })
   isRead: boolean;
+
+  // Ghi đè phương thức từ BaseEntity để đảm bảo thời gian Việt Nam
+  @CreateDateColumn({ name: 'created_at' })
+  @Transform(({ value }) => formatToVietnamTime(value))
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  @Transform(({ value }) => formatToVietnamTime(value))
+  updatedAt: Date;
+
+  @Column({
+    name: 'timestamp',
+    type: 'bigint',
+    nullable: true
+  })
+  timestamp: number;
 }

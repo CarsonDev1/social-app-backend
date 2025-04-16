@@ -119,10 +119,16 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     try {
       const message = await this.chatService.createMessage(user.id, createMessageDto);
 
-      // Broadcast to room
-      this.server.to(createMessageDto.roomId).emit('newMessage', message);
+      const messageWithFormattedTime = {
+        ...message,
+        createdAt: message.createdAt.toISOString(),
+        updatedAt: message.updatedAt.toISOString(),
+      };
 
-      return message;
+      // Broadcast to room
+      this.server.to(createMessageDto.roomId).emit('newMessage', messageWithFormattedTime);
+
+      return messageWithFormattedTime;
     } catch (error) {
       return { error: error.message };
     }
