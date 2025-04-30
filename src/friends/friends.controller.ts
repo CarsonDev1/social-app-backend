@@ -8,6 +8,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { FriendsService } from './friends.service';
@@ -17,30 +18,63 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { PaginationDto } from '../common/dto/pagination.dto';
 import { PaginationResponse } from '../common/interfaces/pagination-response.interface';
+import { UsersService } from 'src/users/users.service';
 
 @ApiTags('Friends')
 @Controller('friends')
 @UseGuards(JwtAuthGuard)
 export class FriendsController {
-  constructor(private readonly friendsService: FriendsService) { }
+  constructor(private readonly friendsService: FriendsService, private readonly usersService: UsersService) { }
 
-  @Post('request/:userId')
-  @ApiOperation({ summary: 'Send a friend request' })
+
+  @Post('request/:userIdentifier')
+  @ApiOperation({ summary: 'Send a friend request by ID or email' })
   @ApiResponse({ status: 201, description: 'Friend request sent successfully' })
   async sendFriendRequest(
-    @Param('userId', ParseUUIDPipe) receiverId: string,
+    @Param('userIdentifier') userIdentifier: string,
     @CurrentUser() user: User,
   ): Promise<FriendRequest> {
+    // Xác định xem userIdentifier là UUID hay email
+    let receiverId: string;
+
+    if (this.isValidUUID(userIdentifier)) {
+      receiverId = userIdentifier;
+    } else {
+      // Giả sử đây là email, tìm người dùng
+      const receiver = await this.usersService.findByEmail(userIdentifier);
+      if (!receiver) {
+        throw new BadRequestException(`User with email ${userIdentifier} not found`);
+      }
+      receiverId = receiver.id;
+    }
+
     return this.friendsService.sendFriendRequest(user.id, receiverId);
   }
+  // Hàm tiện ích để kiểm tra nếu một chuỗi là UUID hợp lệ
+  private isValidUUID(uuid: string): boolean {
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    return uuidPattern.test(uuid);
+  }
 
-  @Post('accept/:userId')
+  @Post('accept/:userIdentifier')
   @ApiOperation({ summary: 'Accept a friend request' })
   @ApiResponse({ status: 200, description: 'Friend request accepted' })
   async acceptFriendRequest(
-    @Param('userId', ParseUUIDPipe) senderId: string,
+    @Param('userIdentifier') userIdentifier: string,
     @CurrentUser() user: User,
   ): Promise<FriendRequest> {
+    let senderId: string;
+
+    if (this.isValidUUID(userIdentifier)) {
+      senderId = userIdentifier;
+    } else {
+      const sender = await this.usersService.findByEmail(userIdentifier);
+      if (!sender) {
+        throw new BadRequestException(`User with email ${userIdentifier} not found`);
+      }
+      senderId = sender.id;
+    }
+
     return this.friendsService.acceptFriendRequest(user.id, senderId);
   }
 

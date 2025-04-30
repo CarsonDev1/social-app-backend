@@ -10,6 +10,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import fastifyMultipart from '@fastify/multipart';
 import fastifyCors from '@fastify/cors';
+import { getVietnamDateTime } from 'src/common/utils/date-utils';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -73,6 +74,12 @@ async function bootstrap() {
 
   await app.listen(port, '0.0.0.0');
   console.log(`Application is running on: ${await app.getUrl()}`);
+
+  const vietnamTime = getVietnamDateTime();
+  console.log(`Application is running on: ${await app.getUrl()}`);
+  console.log(`Current Vietnam time: ${vietnamTime.toLocaleString('vi-VN', {
+    timeZone: 'Asia/Ho_Chi_Minh'
+  })}`);
 }
 
 bootstrap();

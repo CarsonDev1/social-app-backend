@@ -1,6 +1,8 @@
+// src/common/interceptors/response.interceptor.ts
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { formatVietnamDateTime } from 'src/common/utils/date-utils';
 
 export interface Response<T> {
   data: T;
@@ -17,10 +19,13 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
         const response = context.switchToHttp().getResponse();
 
         if (data && data.items && data.meta) {
-          // This is a paginated response
+          // Đây là phản hồi phân trang
           return {
             data: data.items,
-            meta: data.meta,
+            meta: {
+              ...data.meta,
+              timestamp: formatVietnamDateTime(new Date())
+            },
           };
         }
 
@@ -28,7 +33,7 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, Response<T>> {
           data,
           meta: {
             statusCode: response.statusCode,
-            timestamp: new Date().toISOString(),
+            timestamp: formatVietnamDateTime(new Date())
           },
         };
       }),

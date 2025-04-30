@@ -6,7 +6,7 @@ import { BaseEntity } from '../../common/entities/base.entity';
 import { User } from '../../users/entities/user.entity';
 import { ChatRoom } from './chat-room.entity';
 import { Exclude, Transform } from 'class-transformer';
-import { formatToVietnamTime } from '../../common/utils/date-utils';
+import { formatVietnamDateTime } from 'src/common/utils/date-utils';
 
 @Entity('chat_messages')
 export class ChatMessage extends BaseEntity {
@@ -32,11 +32,11 @@ export class ChatMessage extends BaseEntity {
 
   // Ghi đè phương thức từ BaseEntity để đảm bảo thời gian Việt Nam
   @CreateDateColumn({ name: 'created_at' })
-  @Transform(({ value }) => formatToVietnamTime(value))
+  @Transform(({ value }) => formatVietnamDateTime(value))
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
-  @Transform(({ value }) => formatToVietnamTime(value))
+  @Transform(({ value }) => formatVietnamDateTime(value))
   updatedAt: Date;
 
   @Column({

@@ -1,5 +1,7 @@
+// src/common/filters/http-exception.filter.ts
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
+import { formatVietnamDateTime } from 'src/common/utils/date-utils';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -13,7 +15,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const errorResponse = {
       statusCode: status,
-      timestamp: new Date().toISOString(),
+      timestamp: formatVietnamDateTime(new Date()),
       path: request.url,
       method: request.method,
       message: exception.message || 'Internal server error',

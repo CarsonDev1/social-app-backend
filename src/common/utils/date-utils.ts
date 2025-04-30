@@ -1,38 +1,27 @@
-// src/common/utils/date-utils.ts
-export function getVietnamTime(): Date {
-  // Múi giờ Việt Nam UTC+7 (7 * 60 phút)
-  const vietnamOffset = 7 * 60;
-
-  // Lấy thời gian hiện tại theo UTC
+// src/common/utils/date-time.util.ts
+export const getVietnamDateTime = (): Date => {
+  // Tạo datetime hiện tại
   const now = new Date();
 
-  // Tính toán độ lệch múi giờ hiện tại so với UTC (tính bằng phút)
-  const currentOffset = now.getTimezoneOffset();
+  // Chỉnh múi giờ cho Việt Nam (UTC+7)
+  const vietnamOffset = 7 * 60; // 7 giờ đổi sang phút
+  const utcOffset = now.getTimezoneOffset(); // Lấy offset của máy chủ (phút)
 
-  // Tính toán tổng số phút cần điều chỉnh
-  const totalOffsetMinutes = currentOffset + vietnamOffset;
-
-  // Điều chỉnh thời gian (thêm số phút cần điều chỉnh)
-  now.setMinutes(now.getMinutes() + totalOffsetMinutes);
+  // Điều chỉnh múi giờ (thêm offset của máy chủ + offset của Việt Nam)
+  now.setMinutes(now.getMinutes() + utcOffset + vietnamOffset);
 
   return now;
-}
+};
 
-export function formatToVietnamTime(date: Date): string {
-  // Múi giờ Việt Nam UTC+7 (7 * 60 phút)
-  const vietnamOffset = 7 * 60;
+export const formatVietnamDateTime = (date: Date): string => {
+  const vietnamDate = new Date(date);
 
-  // Tính toán độ lệch múi giờ hiện tại so với UTC (tính bằng phút)
-  const currentOffset = date.getTimezoneOffset();
+  // Điều chỉnh múi giờ cho Việt Nam
+  const vietnamOffset = 7 * 60; // 7 giờ đổi sang phút
+  const utcOffset = vietnamDate.getTimezoneOffset(); // Lấy offset của máy chủ (phút)
 
-  // Tính toán tổng số phút cần điều chỉnh
-  const totalOffsetMinutes = currentOffset + vietnamOffset;
+  // Điều chỉnh múi giờ
+  vietnamDate.setMinutes(vietnamDate.getMinutes() + utcOffset + vietnamOffset);
 
-  // Tạo bản sao của date để không ảnh hưởng đến tham số gốc
-  const adjustedDate = new Date(date);
-
-  // Điều chỉnh thời gian
-  adjustedDate.setMinutes(adjustedDate.getMinutes() + totalOffsetMinutes);
-
-  return adjustedDate.toISOString();
-}
+  return vietnamDate.toISOString();
+};
